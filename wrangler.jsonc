@@ -1,7 +1,7 @@
 {
   // Static-assets Worker for the Etapp landing + demo at etapp.tor2dbear.com.
   // Serves / (landing) and /demo (a live board on fictional data). No build step.
-  "name": "etapp-site",
+  "name": "etapp",
   "compatibility_date": "2026-08-15",
   "preview_urls": true,
   "assets": { "directory": "." },
