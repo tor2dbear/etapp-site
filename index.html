@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%AD%3C/text%3E%3C/svg%3E" />
+<title>Etapp</title>
+<meta name="description" content="Roadmap-as-code — a git-native, agent-readable roadmap aggregated into one zero-backend board." />
+<style>
+  :root {
+    /* map-paper light */
+    --bg: #edefea;
+    --surface: #f6f7f3;
+    --surface-2: #e7eae2;
+    --ink: #14201b;
+    --muted: #586259;
+    --line: #d6dbcf;
+    --line-strong: #c3c9bb;
+    --accent: #cf551b;      /* trail-blaze */
+    --accent-soft: #f3e2d6;
+    --on-accent: #fff8f3;
+    --forest: #2c5b45;      /* route / support */
+    --forest-soft: #dde8df;
+    --shadow: 0 1px 2px rgba(20,32,27,.05), 0 8px 30px -12px rgba(20,32,27,.14);
+    --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e1412;
+      --surface: #141c19;
+      --surface-2: #1a2320;
+      --ink: #e7ebe3;
+      --muted: #8d9a91;
+      --line: #253029;
+      --line-strong: #33413a;
+      --accent: #ef7038;
+      --accent-soft: #2a2018;
+      --on-accent: #140d08;
+      --forest: #52a582;
+      --forest-soft: #16241d;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 34px -14px rgba(0,0,0,.55);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e1412;
+    --surface: #141c19;
+    --surface-2: #1a2320;
+    --ink: #e7ebe3;
+    --muted: #8d9a91;
+    --line: #253029;
+    --line-strong: #33413a;
+    --accent: #ef7038;
+    --accent-soft: #2a2018;
+    --on-accent: #140d08;
+    --forest: #52a582;
+    --forest-soft: #16241d;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 34px -14px rgba(0,0,0,.55);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  .wrap { width: 100%; max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+  a { color: inherit; }
+  ::selection { background: var(--accent); color: var(--on-accent); }
+
+  .mono { font-family: var(--font-mono); }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .puck { width: 9px; height: 9px; border-radius: 2px; background: var(--accent); flex: none; display: inline-block; }
+
+  /* ── header ── */
+  header.top {
+    position: sticky; top: 0; z-index: 20;
+    background: color-mix(in srgb, var(--bg) 86%, transparent);
+    backdrop-filter: saturate(1.4) blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .top .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; gap: 16px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-weight: 600; font-size: 17px; letter-spacing: -.01em; text-decoration: none; }
+  .brand .puck { width: 12px; height: 12px; }
+  .nav { display: flex; align-items: center; gap: 8px; }
+  .btn {
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    text-decoration: none;
+    padding: 9px 15px;
+    border-radius: 9px;
+    border: 1px solid var(--line-strong);
+    color: var(--ink);
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: border-color .15s, background .15s, transform .05s;
+    white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn:active { transform: translateY(1px); }
+  .btn.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
+  .btn.primary:hover { filter: brightness(1.05); }
+  .btn .arw { transition: transform .15s; }
+  .btn:hover .arw { transform: translateX(2px); }
+  .nav .ghostlink { display: none; }
+  @media (min-width: 720px) { .nav .ghostlink { display: inline-flex; } }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+  /* ── hero ── */
+  .hero { padding: 84px 0 68px; }
+  .hero-grid { display: grid; gap: 44px; align-items: center; }
+  @media (min-width: 900px) { .hero-grid { grid-template-columns: 1.05fr .95fr; gap: 56px; } }
+  h1 {
+    font-size: clamp(38px, 6.4vw, 68px);
+    line-height: 1.02;
+    letter-spacing: -.028em;
+    margin: 18px 0 0;
+    font-weight: 680;
+    text-wrap: balance;
+  }
+  h1 .lit { color: var(--accent); }
+  .lede { font-size: clamp(17px, 2.1vw, 20px); color: var(--muted); margin: 22px 0 0; max-width: 42ch; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+  .cta-row .btn { padding: 12px 18px; font-size: 15px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+  .tag { font-family: var(--font-mono); font-size: 12px; color: var(--forest); background: var(--forest-soft); border: 1px solid color-mix(in srgb, var(--forest) 22%, transparent); padding: 4px 10px; border-radius: 999px; }
+
+  /* code card (a real puck) */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .card-bar { display: flex; align-items: center; gap: 8px; padding: 11px 14px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+  .card-bar .fname { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); margin-left: 4px; }
+  .dot3 { width: 9px; height: 9px; border-radius: 50%; background: var(--line-strong); }
+  pre { margin: 0; padding: 18px 18px 20px; overflow-x: auto; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; }
+  code { font-family: var(--font-mono); }
+  .k { color: var(--forest); }         /* keys */
+  .s { color: var(--accent); }         /* status/strings */
+  .c { color: var(--muted); }          /* comment/dim */
+
+  /* ── sections / legs ── */
+  section { padding: 66px 0; border-top: 1px solid var(--line); }
+  .leg-head { max-width: 60ch; margin-bottom: 34px; }
+  h2 { font-size: clamp(26px, 3.4vw, 36px); letter-spacing: -.02em; line-height: 1.1; margin: 12px 0 0; font-weight: 660; text-wrap: balance; }
+  .leg-head p { color: var(--muted); margin: 12px 0 0; font-size: 17px; }
+  .legnum { color: var(--accent); }
+
+  /* why grid */
+  .grid3 { display: grid; gap: 18px; grid-template-columns: 1fr; }
+  @media (min-width: 760px) { .grid3 { grid-template-columns: repeat(3, 1fr); } }
+  .feat { background: var(--surface); border: 1px solid var(--line); border-radius: 13px; padding: 22px; }
+  .feat h3 { margin: 12px 0 6px; font-size: 18px; letter-spacing: -.01em; }
+  .feat p { margin: 0; color: var(--muted); font-size: 15.5px; }
+  .feat .ic { width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-family: var(--font-mono); font-weight: 700; font-size: 15px; }
+
+  /* comparison table */
+  .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 13px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 15px; }
+  th, td { text-align: left; padding: 13px 16px; border-bottom: 1px solid var(--line); }
+  thead th { font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  tbody th { font-weight: 500; color: var(--ink); }
+  .col-them { color: var(--muted); }
+  th.col-us, td.col-us { background: color-mix(in srgb, var(--accent) 8%, var(--surface)); border-left: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); border-right: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); }
+  thead th.col-us { color: var(--accent); }
+  td.col-us { font-weight: 550; }
+  tr:last-child td, tr:last-child th { border-bottom: none; }
+  .yep { color: var(--forest); font-weight: 600; }
+
+  /* flow diagram */
+  .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 14px; }
+  .node { flex: 1 1 200px; background: var(--surface); border: 1px solid var(--line); border-radius: 13px; padding: 20px; }
+  .node .lbl { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .node h4 { margin: 8px 0 6px; font-size: 17px; letter-spacing: -.01em; }
+  .node p { margin: 0; color: var(--muted); font-size: 14.5px; }
+  .node.mid { border-color: color-mix(in srgb, var(--accent) 34%, transparent); }
+  .arrow { align-self: center; color: var(--accent); font-family: var(--font-mono); font-size: 20px; }
+  @media (max-width: 640px) { .arrow { transform: rotate(90deg); align-self: center; } }
+
+  /* deploy steps */
+  .steps { display: grid; gap: 2px; background: var(--line); border: 1px solid var(--line); border-radius: 13px; overflow: hidden; }
+  .step { background: var(--surface); padding: 18px 20px; display: grid; grid-template-columns: 40px 1fr; gap: 16px; align-items: start; }
+  .step .n { font-family: var(--font-mono); color: var(--accent); font-weight: 700; font-size: 15px; padding-top: 1px; }
+  .step h4 { margin: 0 0 3px; font-size: 16.5px; letter-spacing: -.01em; }
+  .step p { margin: 0; color: var(--muted); font-size: 15px; }
+  .step code { background: var(--surface-2); padding: 1px 6px; border-radius: 5px; font-size: 13px; }
+
+  /* agents block */
+  .agents { display: grid; gap: 26px; align-items: center; }
+  @media (min-width: 860px) { .agents { grid-template-columns: 1fr 1fr; gap: 40px; } }
+  .agents ul { margin: 16px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+  .agents li { padding-left: 26px; position: relative; color: var(--muted); font-size: 16px; }
+  .agents li::before { content: "→"; position: absolute; left: 0; color: var(--accent); font-family: var(--font-mono); }
+  .agents li b { color: var(--ink); font-weight: 600; }
+
+  /* final cta */
+  .final { border-top: 1px solid var(--line); }
+  .final-inner { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 48px 34px; text-align: center; box-shadow: var(--shadow); }
+  .final h2 { margin: 0 auto; max-width: 22ch; }
+  .final p { color: var(--muted); margin: 14px auto 0; max-width: 46ch; }
+  .final .cta-row { justify-content: center; margin-top: 26px; }
+
+  footer.foot { padding: 40px 0 60px; color: var(--muted); }
+  .foot-inner { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; font-size: 14px; font-family: var(--font-mono); }
+  .foot a { color: var(--muted); text-decoration: none; }
+  .foot a:hover { color: var(--accent); }
+
+  /* scroll reveal */
+  .rise { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+  .rise.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .rise { opacity: 1; transform: none; transition: none; } }
+</style>
+</head>
+<body>
+
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="puck"></span>etapp</a>
+    <nav class="nav">
+      <a class="btn ghostlink" href="https://github.com/tor2dbear/etapp">GitHub</a>
+      <a class="btn primary" href="/demo/">Live demo <span class="arw">→</span></a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <!-- HERO -->
+  <div class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow"><span class="puck"></span> Roadmap-as-code</span>
+        <h1>Your roadmap<br />lives in <span class="lit">git</span>.</h1>
+        <p class="lede">Plain-markdown <em>pucks</em> in each repo — read and written by you <em>and</em> your AI agents — aggregated into one zero-backend board. No SaaS, no lock-in, no second source of truth.</p>
+        <div class="cta-row">
+          <a class="btn primary" href="/demo/">Try the demo <span class="arw">→</span></a>
+          <a class="btn" href="https://github.com/tor2dbear/etapp">View on GitHub</a>
+        </div>
+        <div class="tags">
+          <span class="tag">git-native</span>
+          <span class="tag">agent-readable</span>
+          <span class="tag">zero-backend</span>
+          <span class="tag">deploy-your-own</span>
+        </div>
+      </div>
+      <div class="card rise">
+        <div class="card-bar"><span class="dot3"></span><span class="dot3"></span><span class="dot3"></span><span class="fname">roadmap/dark-mode.md</span></div>
+<pre><code><span class="c">---</span>
+<span class="k">title:</span> Add dark mode
+<span class="k">status:</span> <span class="s">now</span>
+<span class="k">tags:</span> [ui]
+<span class="k">updated:</span> 2026-08-16
+<span class="k">owner:</span> tor2dbear
+<span class="k">depends:</span> [design-tokens]
+<span class="c">---</span>
+
+<span class="c">## Goal</span>
+One markdown file per roadmap item.
+Edit it by hand or with the <span class="s">roadmap</span> CLI —
+both you and an agent can.</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEG 01 — WHY -->
+  <section>
+    <div class="wrap">
+      <div class="leg-head rise">
+        <span class="eyebrow"><span class="puck"></span> Etapp <span class="legnum">01</span> — why</span>
+        <h2>Not another tracker. A roadmap layer in your code.</h2>
+        <p>Linear and GitHub Projects are team-PM tools. Etapp is different by construction — the difference is structural, not a feature list.</p>
+      </div>
+      <div class="grid3">
+        <div class="feat rise"><div class="ic">git</div><h3>Truth lives in git</h3><p>Each item is a markdown file in its own repo. Your roadmap diffs in pull requests and travels with the code — nothing to sync.</p></div>
+        <div class="feat rise"><div class="ic">ai</div><h3>Agent-native</h3><p>A coding agent reads <span class="mono">roadmap.json</span> to know what's ready and writes back with the CLI — no API keys, no integration.</p></div>
+        <div class="feat rise"><div class="ic">∅</div><h3>Zero backend</h3><p>A static board aggregates every repo. No database, no service to run, nothing to lock you in. Deploy your own in minutes.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEG 02 — COMPARISON -->
+  <section>
+    <div class="wrap">
+      <div class="leg-head rise">
+        <span class="eyebrow"><span class="puck"></span> Etapp <span class="legnum">02</span> — vs the tools</span>
+        <h2>Where Etapp is different by design.</h2>
+        <p>It deliberately cedes real-time co-editing, notifications and sprints — that's Linear's turf. The moat is being git-native and agent-native.</p>
+      </div>
+      <div class="tablewrap rise">
+        <table>
+          <thead>
+            <tr><th></th><th class="col-them">Linear / Projects</th><th class="col-us">Etapp</th></tr>
+          </thead>
+          <tbody>
+            <tr><th>Truth lives</th><td class="col-them">their cloud / GitHub</td><td class="col-us">in each repo, in git</td></tr>
+            <tr><th>Format</th><td class="col-them">proprietary / issues</td><td class="col-us">plain markdown</td></tr>
+            <tr><th>Backend</th><td class="col-them">SaaS</td><td class="col-us">none — static</td></tr>
+            <tr><th>Multi-repo</th><td class="col-them">clunky</td><td class="col-us">core</td></tr>
+            <tr><th>Agent read / write</th><td class="col-them">API + keys</td><td class="col-us"><span class="yep">direct</span> — md + JSON + CLI</td></tr>
+            <tr><th>Lock-in</th><td class="col-them">yes</td><td class="col-us">none</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEG 03 — HOW -->
+  <section>
+    <div class="wrap">
+      <div class="leg-head rise">
+        <span class="eyebrow"><span class="puck"></span> Etapp <span class="legnum">03</span> — how it works</span>
+        <h2>Harvest the markdown. Render one board.</h2>
+        <p>A scheduled job reads every source repo's pucks and generates the board — humans and agents read the same files.</p>
+      </div>
+      <div class="flow rise">
+        <div class="node"><div class="lbl">source repos</div><h4>roadmap/*.md</h4><p>One puck per item, in each project. The source of truth.</p></div>
+        <div class="arrow">→</div>
+        <div class="node mid"><div class="lbl">harvest</div><h4>roadmap.json · ROADMAP.md</h4><p>Aggregated, machine-readable, with drift signals + blocked-by.</p></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="lbl">render</div><h4>the board</h4><p>A static page — search, filter, sort, deep links. No backend.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEG 04 — AGENTS -->
+  <section>
+    <div class="wrap agents">
+      <div class="rise">
+        <span class="eyebrow"><span class="puck"></span> Etapp <span class="legnum">04</span> — for agents</span>
+        <h2>Built for the agent era.</h2>
+        <p style="color:var(--muted);margin-top:12px;">The roadmap an AI operates natively — reads to know what to do, writes to mark it done. No integration to maintain.</p>
+        <ul>
+          <li><b>Find what's ready</b> — unblocked <span class="mono">now</span> / <span class="mono">next</span> pucks, in one query.</li>
+          <li><b>Update via the CLI</b> — <span class="mono">roadmap done &lt;slug&gt;</span>, straight to git.</li>
+          <li><b>One contract</b> — <span class="mono">AGENTS.md</span> spells out read + write.</li>
+        </ul>
+      </div>
+      <div class="card rise">
+        <div class="card-bar"><span class="dot3"></span><span class="dot3"></span><span class="dot3"></span><span class="fname">what's ready to pick up</span></div>
+<pre><code><span class="c">$ node -e</span> <span class="s">"…filter roadmap.json…"</span>
+
+pia-terminal/python-sandbox-csp-fix
+meta-matic/seller-order-notifications
+cadence/bring-your-own-markup
+<span class="c"># unblocked now/next — nothing guessed</span></code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEG 05 — DEPLOY -->
+  <section>
+    <div class="wrap">
+      <div class="leg-head rise">
+        <span class="eyebrow"><span class="puck"></span> Etapp <span class="legnum">05</span> — deploy your own</span>
+        <h2>Point it at your repos. Ship in minutes.</h2>
+        <p>Config-driven — no code changes. Private repos work too.</p>
+      </div>
+      <div class="steps rise">
+        <div class="step"><span class="n">1</span><div><h4>Use the template</h4><p>Fork <code>tor2dbear/etapp</code> — the whole engine and board come with it.</p></div></div>
+        <div class="step"><span class="n">2</span><div><h4>List your repos</h4><p>Edit <code>sources.json</code> — repo, name, colour, adapter. A <code>GITHUB_TOKEN</code> covers private ones.</p></div></div>
+        <div class="step"><span class="n">3</span><div><h4>Brand it</h4><p>Set title, description and source link in <code>board.config.json</code>.</p></div></div>
+        <div class="step"><span class="n">4</span><div><h4>Deploy</h4><p>Cloudflare → import the repo → <code>npx wrangler deploy</code>. No build step.</p></div></div>
+        <div class="step"><span class="n">5</span><div><h4>Forget it</h4><p>An hourly action harvests your repos and redeploys. Nothing to run.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final">
+    <div class="wrap">
+      <div class="final-inner rise">
+        <span class="eyebrow" style="justify-content:center;display:flex;"><span class="puck"></span> start the journey</span>
+        <h2 style="margin-top:14px;">Your roadmap already lives in git. Give it a board.</h2>
+        <p>Try the interactive demo, or grab the code and stand up your own.</p>
+        <div class="cta-row">
+          <a class="btn primary" href="/demo/">Try the demo <span class="arw">→</span></a>
+          <a class="btn" href="https://github.com/tor2dbear/etapp">View on GitHub</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <span><span class="puck" style="vertical-align:middle;margin-right:7px;"></span>etapp — roadmap-as-code</span>
+    <span><a href="https://github.com/tor2dbear/etapp">GitHub</a> · <a href="/demo/">Demo</a> · <a href="https://github.com/tor2dbear/etapp/blob/main/AGENTS.md">AGENTS.md</a></span>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var els = document.querySelectorAll('.rise');
+    if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      els.forEach(function (e) { e.classList.add('in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    els.forEach(function (e) { io.observe(e); });
+  })();
+</script>
+
+</body>
+</html>
