@@ -3,24 +3,24 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-0.5 -0.5 24 24' fill='none' stroke='%23e2622a' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14.375 17.25a2.875 2.875 0 1 0 5.75 0 2.875 2.875 0 1 0 -5.75 0'/%3E%3Cpath d='M2.875 5.75a2.875 2.875 0 1 0 5.75 0 2.875 2.875 0 1 0 -5.75 0'/%3E%3Cpath d='M5.75 20.125V8.625a8.625 8.625 0 0 0 8.625 8.625'/%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-0.5 -0.5 24 24' fill='none' stroke='%23c07682' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14.375 17.25a2.875 2.875 0 1 0 5.75 0 2.875 2.875 0 1 0 -5.75 0'/%3E%3Cpath d='M2.875 5.75a2.875 2.875 0 1 0 5.75 0 2.875 2.875 0 1 0 -5.75 0'/%3E%3Cpath d='M5.75 20.125V8.625a8.625 8.625 0 0 0 8.625 8.625'/%3E%3C/svg%3E" />
 <title>Etapp</title>
 <meta name="description" content="Roadmap-as-code — a git-native, agent-readable roadmap aggregated into one zero-backend board." />
 <style>
   :root {
     /* map-paper light */
-    --bg: #edefea;
-    --surface: #f6f7f3;
-    --surface-2: #e7eae2;
-    --ink: #14201b;
-    --muted: #586259;
-    --line: #d6dbcf;
-    --line-strong: #c3c9bb;
-    --accent: #cf551b;      /* trail-blaze */
-    --accent-soft: #f3e2d6;
+    --bg: #f0eee7;
+    --surface: #f8f6f1;
+    --surface-2: #eae7df;
+    --ink: #262320;
+    --muted: #6a635a;
+    --line: #e5e1d8;
+    --line-strong: #d7d2c6;
+    --accent: #87414b;      /* burgundy */
+    --accent-soft: #f0e2e2;
     --on-accent: #fff8f3;
-    --forest: #2c5b45;      /* route / support */
-    --forest-soft: #dde8df;
+    --forest: #567f66;      /* route / support */
+    --forest-soft: #e0e8dd;
     --shadow: 0 1px 2px rgba(20,32,27,.05), 0 8px 30px -12px rgba(20,32,27,.14);
     --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
@@ -28,35 +28,35 @@
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #0e1412;
-      --surface: #141c19;
-      --surface-2: #1a2320;
-      --ink: #e7ebe3;
-      --muted: #8d9a91;
-      --line: #253029;
-      --line-strong: #33413a;
-      --accent: #ef7038;
-      --accent-soft: #2a2018;
+      --bg: #171410;
+      --surface: #201d18;
+      --surface-2: #29251f;
+      --ink: #eae6de;
+      --muted: #9d968a;
+      --line: #322e28;
+      --line-strong: #423d35;
+      --accent: #c07682;
+      --accent-soft: #2a1c1e;
       --on-accent: #140d08;
-      --forest: #52a582;
-      --forest-soft: #16241d;
+      --forest: #79a58a;
+      --forest-soft: #1b241d;
       --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 34px -14px rgba(0,0,0,.55);
       color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
-    --bg: #0e1412;
-    --surface: #141c19;
-    --surface-2: #1a2320;
-    --ink: #e7ebe3;
-    --muted: #8d9a91;
-    --line: #253029;
-    --line-strong: #33413a;
-    --accent: #ef7038;
-    --accent-soft: #2a2018;
+    --bg: #171410;
+    --surface: #201d18;
+    --surface-2: #29251f;
+    --ink: #eae6de;
+    --muted: #9d968a;
+    --line: #322e28;
+    --line-strong: #423d35;
+    --accent: #c07682;
+    --accent-soft: #2a1c1e;
     --on-accent: #140d08;
-    --forest: #52a582;
-    --forest-soft: #16241d;
+    --forest: #79a58a;
+    --forest-soft: #1b241d;
     --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 34px -14px rgba(0,0,0,.55);
     color-scheme: dark;
   }

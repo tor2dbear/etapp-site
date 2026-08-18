@@ -11,9 +11,9 @@ const STATUSES = ["now", "next", "later", "inbox", "done"];
 const STALE = { now: 21, next: 60 };
 
 const sources = [
-  { repo: "acme/aurora", name: "Aurora", color: "#a78bfa", blurb: "Design system" },
-  { repo: "acme/relay",  name: "Relay",  color: "#38bdf8", blurb: "Realtime chat" },
-  { repo: "acme/ledger", name: "Ledger", color: "#34d399", blurb: "Personal finance" },
+  { repo: "acme/aurora", name: "Aurora", color: "#8a7bab", blurb: "Design system" },
+  { repo: "acme/relay",  name: "Relay",  color: "#5f80a3", blurb: "Realtime chat" },
+  { repo: "acme/ledger", name: "Ledger", color: "#7d9163", blurb: "Personal finance" },
 ];
 
 const raw = [
