@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%AD%3C/text%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-0.5 -0.5 24 24' fill='none' stroke='%23e2622a' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14.375 17.25a2.875 2.875 0 1 0 5.75 0 2.875 2.875 0 1 0 -5.75 0'/%3E%3Cpath d='M2.875 5.75a2.875 2.875 0 1 0 5.75 0 2.875 2.875 0 1 0 -5.75 0'/%3E%3Cpath d='M5.75 20.125V8.625a8.625 8.625 0 0 0 8.625 8.625'/%3E%3C/svg%3E" />
 <title>Etapp</title>
 <meta name="description" content="Roadmap-as-code — a git-native, agent-readable roadmap aggregated into one zero-backend board." />
 <style>
@@ -101,6 +101,9 @@
   .top .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; gap: 16px; }
   .brand { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-weight: 600; font-size: 17px; letter-spacing: -.01em; text-decoration: none; }
   .brand .puck { width: 12px; height: 12px; }
+  .brand-mark { color: var(--accent); flex: none; }
+  .brand .brand-mark { width: 18px; height: 18px; }
+  .foot .brand-mark { width: 15px; height: 15px; vertical-align: middle; margin-right: 7px; }
   .nav { display: flex; align-items: center; gap: 8px; }
   .btn {
     font-family: var(--font-mono);
@@ -237,7 +240,7 @@
 
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="#top"><span class="puck"></span>etapp</a>
+    <a class="brand" href="#top"><svg class="brand-mark" viewBox="-0.5 -0.5 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.375 17.25a2.875 2.875 0 1 0 5.75 0 2.875 2.875 0 1 0 -5.75 0"/><path d="M2.875 5.75a2.875 2.875 0 1 0 5.75 0 2.875 2.875 0 1 0 -5.75 0"/><path d="M5.75 20.125V8.625a8.625 8.625 0 0 0 8.625 8.625"/></svg>etapp</a>
     <nav class="nav">
       <a class="btn ghostlink" href="https://github.com/tor2dbear/etapp">GitHub</a>
       <a class="btn primary" href="/demo/">Live demo <span class="arw">→</span></a>
@@ -405,7 +408,7 @@ cadence/bring-your-own-markup
 
 <footer class="foot">
   <div class="wrap foot-inner">
-    <span><span class="puck" style="vertical-align:middle;margin-right:7px;"></span>etapp — roadmap-as-code</span>
+    <span><svg class="brand-mark" viewBox="-0.5 -0.5 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.375 17.25a2.875 2.875 0 1 0 5.75 0 2.875 2.875 0 1 0 -5.75 0"/><path d="M2.875 5.75a2.875 2.875 0 1 0 5.75 0 2.875 2.875 0 1 0 -5.75 0"/><path d="M5.75 20.125V8.625a8.625 8.625 0 0 0 8.625 8.625"/></svg>etapp — roadmap-as-code</span>
     <span><a href="https://github.com/tor2dbear/etapp">GitHub</a> · <a href="/demo/">Demo</a> · <a href="https://github.com/tor2dbear/etapp/blob/main/AGENTS.md">AGENTS.md</a></span>
   </div>
 </footer>
