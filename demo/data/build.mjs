@@ -91,7 +91,7 @@ for (const it of items) counts[it.status]++;
 
 const payload = {
   generatedAt: GEN,
-  config: { title: "Etapp — demo", description: "A live Etapp board running on fictional data.", repoUrl: "https://github.com/tor2dbear/etapp" },
+  config: { title: "Etapp — demo", description: "A live Etapp board running on fictional data.", repoUrl: "https://github.com/tor2dbear/etapp", ribbon: "← Etapp · **live demo** · data is fictional", ribbonHref: "/" },
   statuses: STATUSES,
   counts,
   total: items.length,

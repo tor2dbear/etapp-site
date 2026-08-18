@@ -3,7 +3,9 @@
   "config": {
     "title": "Etapp — demo",
     "description": "A live Etapp board running on fictional data.",
-    "repoUrl": "https://github.com/tor2dbear/etapp"
+    "repoUrl": "https://github.com/tor2dbear/etapp",
+    "ribbon": "← Etapp · **live demo** · data is fictional",
+    "ribbonHref": "/"
   },
   "statuses": [
     "now",
