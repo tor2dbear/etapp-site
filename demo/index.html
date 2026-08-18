@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- Browser UI (status bar) color; app.js keeps it in sync with the active
          theme, including the in-app light/dark toggle. -->
-    <meta name="theme-color" content="#f6f7f9" />
+    <meta name="theme-color" content="#f4efe4" />
     <!-- title / description are defaults; app.js overrides them from board.config.json -->
     <title>Roadmap</title>
     <meta
@@ -16,24 +16,113 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-<style>
-.demo-ribbon{display:block;text-align:center;font:600 12.5px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;padding:9px 12px;background:#cf551b;color:#fff8f3;text-decoration:none;letter-spacing:.02em}
-.demo-ribbon b{font-weight:700}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .demo-ribbon{background:#ef7038;color:#140d08}}
-</style>
-<a class="demo-ribbon" href="/">← Etapp · <b>live demo</b> · data is fictional</a>
+    <div class="app" id="app">
+      <!-- ── left sidebar: identity + navigation ── -->
+      <aside class="sidebar" id="sidebar" aria-label="Navigation">
+        <div class="side-brand brand">
+          <h1>Roadmap</h1>
+          <p class="sub" id="subtitle">Aggregated across repos · loading…</p>
+        </div>
+        <!-- top actions: search opens the ⌘K palette; New creates a puck (token-gated) -->
+        <div class="side-actions" id="sideActions">
+          <button id="sideSearch" class="side-act side-search" type="button" aria-label="Search (Cmd/Ctrl+K)">
+            <span>Search</span>
+            <kbd>⌘K</kbd>
+          </button>
+          <button id="sideNew" class="side-act side-new" type="button" aria-label="New puck" hidden>
+            <span>New</span>
+          </button>
+        </div>
+        <div class="side-section">
+          <div class="side-eyebrow">Views</div>
+          <nav class="side-views" id="sideViews" aria-label="Views"></nav>
+        </div>
+        <!-- PO-console: per-discipline agent queues; hidden until pucks are routed -->
+        <div class="side-section" id="agentSection" hidden>
+          <div class="side-eyebrow">Agents</div>
+          <div class="side-repos" id="agentFilters" aria-label="Agent queues"></div>
+        </div>
+        <div class="side-section">
+          <div class="side-eyebrow">Repos</div>
+          <div class="side-repos" id="repoFilters" aria-label="Repositories"></div>
+        </div>
+        <div class="side-foot">
+          <button id="theme" class="ghost" title="Toggle theme" aria-label="Toggle theme">◐</button>
+        </div>
+      </aside>
 
-    <header class="topbar">
-      <div class="brand">
-        <h1>Roadmap</h1>
-        <p class="sub" id="subtitle">Aggregated across repos · loading…</p>
+      <!-- ── main column: topbar + work ── -->
+      <div class="maincol">
+        <!-- mobile-only: sidebar (with search + New) is behind the menu, so mirror
+             the quick actions here; hidden on desktop where the sidebar is visible -->
+        <header class="topbar">
+          <!-- menu stays in puck mode too, so nav is always reachable; icon injected via icon("sidebar") -->
+          <button id="menuToggle" class="ghost menu-toggle" type="button" aria-label="Menu"></button>
+          <div class="top-title">
+            <span id="topTitle" class="view-title">All pucks</span>
+            <span id="topCount" class="view-count"></span>
+          </div>
+          <!-- puck mode: breadcrumb (Pucks › Title) replaces the board title; the
+               "Pucks" segment is the back action -->
+          <nav class="top-crumb" id="topCrumb" aria-label="Breadcrumb"></nav>
+          <button id="topNew" class="ghost top-new" type="button" aria-label="New puck" hidden></button>
+          <button id="topSearch" class="ghost top-search" type="button" aria-label="Search (Cmd/Ctrl+K)"></button>
+          <!-- icon injected in JS via icon("share") so it matches the puck's Copy-link glyph (tray + up-arrow) -->
+          <button id="topShare" class="ghost top-share-btn" type="button" aria-label="Share puck"></button>
+        </header>
+
+        <!-- consistent view-header: current view + view-options (stays as you navigate/open pucks) -->
+        <header class="vhead">
+          <h2 class="view-title" id="viewTitle">All pucks</h2>
+          <span class="view-count" id="viewCount"></span>
+          <div class="vopts" id="viewActions">
+            <div class="filter-wrap">
+              <button id="filterBtn" class="ghost filter-btn" type="button" aria-haspopup="true" aria-expanded="false" title="Filter">
+                <span>Filter</span>
+                <span id="filterCount" class="filter-count" hidden></span>
+              </button>
+            </div>
+            <div class="filter-sort">
+              <label for="sortSelect">Sort</label>
+              <select id="sortSelect">
+                <option value="default">Recently updated</option>
+                <option value="priority">Priority (high→low)</option>
+                <option value="updated-asc">Oldest updated</option>
+                <option value="created-desc">Newest created</option>
+                <option value="created-asc">Oldest created</option>
+                <option value="title">Title A–Z</option>
+              </select>
+            </div>
+            <button id="viewToggle" class="ghost" title="Switch to list view" aria-label="Switch to list view">☰</button>
+          </div>
+        </header>
+
+        <div class="work" id="work">
+          <main id="board" class="board" aria-live="polite"></main>
+          <aside class="detail-pane" id="detailPane" hidden aria-label="Puck detail">
+            <button class="detail-close" id="detailClose" type="button" aria-label="Close">✕</button>
+            <div class="detail-content" id="detailContent"></div>
+          </aside>
+        </div>
+
+        <footer class="foot">
+          <span id="footmeta"></span>
+          <a href="ROADMAP.md">flat digest</a> ·
+          <a href="data/roadmap.json">roadmap.json</a> ·
+          <a id="sourceLink" href="#">source</a>
+        </footer>
       </div>
-      <div class="controls">
+    </div>
+    <div class="scrim" id="scrim" hidden></div>
+
+    <!-- ⌘K command palette — the search input lives here now, opened by ⌘K / the trigger -->
+    <div class="cmdk-overlay" id="cmdkOverlay" hidden>
+      <div class="cmdk-box">
         <div class="search-wrap">
           <input
             id="search"
             type="search"
-            placeholder="Search…"
+            placeholder="Search pucks…"
             autocomplete="off"
             spellcheck="false"
             role="combobox"
@@ -44,41 +133,8 @@
           <button id="searchClear" class="search-clear" type="button" aria-label="Clear search" hidden>✕</button>
           <ul id="searchSuggest" class="suggest" role="listbox" aria-label="Search suggestions" hidden></ul>
         </div>
-        <button id="filterToggle" class="ghost" aria-expanded="false" aria-controls="filterChips">Filter</button>
-        <button id="viewToggle" class="ghost" title="Switch to list view" aria-label="Switch to list view">☰</button>
-        <button id="theme" class="ghost" title="Toggle theme" aria-label="Toggle theme">◐</button>
       </div>
-    </header>
-
-    <nav class="filters" id="filters" aria-label="Filters">
-      <div class="filter-chips" id="filterChips" hidden>
-        <div class="filter-sort">
-          <label for="sortSelect">Sort</label>
-          <select id="sortSelect">
-            <option value="default">Recently updated</option>
-            <option value="updated-asc">Oldest updated</option>
-            <option value="created-desc">Newest created</option>
-            <option value="created-asc">Oldest created</option>
-            <option value="title">Title A–Z</option>
-          </select>
-        </div>
-        <div class="filter-group" id="repoFilters" aria-label="Repositories"></div>
-        <div class="filter-group" id="tagFilters" aria-label="Tags"></div>
-      </div>
-      <label class="toggle">
-        <input type="checkbox" id="showDone" />
-        <span>Show done</span>
-      </label>
-    </nav>
-
-    <main id="board" class="board" aria-live="polite"></main>
-
-    <footer class="foot">
-      <span id="footmeta"></span>
-      <a href="ROADMAP.md">flat digest</a> ·
-      <a href="data/roadmap.json">roadmap.json</a> ·
-      <a id="sourceLink" href="#">source</a>
-    </footer>
+    </div>
 
     <!-- Generated payload, loaded as a global so the page also works from file://. -->
     <script src="data/roadmap.js" onerror="window.__ROADMAP_LOAD_ERROR__=true"></script>
