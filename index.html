@@ -6,7 +6,30 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-0.5 -0.5 24 24' fill='none' stroke='%23c07682' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14.375 17.25a2.875 2.875 0 1 0 5.75 0 2.875 2.875 0 1 0 -5.75 0'/%3E%3Cpath d='M2.875 5.75a2.875 2.875 0 1 0 5.75 0 2.875 2.875 0 1 0 -5.75 0'/%3E%3Cpath d='M5.75 20.125V8.625a8.625 8.625 0 0 0 8.625 8.625'/%3E%3C/svg%3E" />
 <title>Etapp</title>
 <meta name="description" content="Roadmap-as-code — a git-native, agent-readable roadmap aggregated into one zero-backend board." />
+<!-- The two faces that paint almost everything, fetched from the head instead of
+     after the CSSOM has parsed. Geist is narrower than the system stack it replaced —
+     the hero sets on two lines rather than three — so a late swap moves the largest
+     text on the page. Italic is left to `swap`: it is two words in the lede.
+     `crossorigin` is required even same-origin, or the preload is fetched twice. -->
+<link rel="preload" href="demo/fonts/geist.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="demo/fonts/geist-mono.woff2" as="font" type="font/woff2" crossorigin />
 <style>
+  /* Geist — the same three files the board uses, and the same faces it ships: no
+     italic mono, because nothing here reaches one. The landing page ran on
+     `system-ui` / `ui-monospace` until now, so the product's face changed on the
+     click into /demo, and the mono-heavy half of this page (the wordmark, the tags,
+     every code block, the table heads, the step numbers, the footer) rendered as
+     whatever the visitor's OS happened to have — SF Mono, Consolas, Liberation Mono.
+     A landing page that looks different per visitor is not showing them the product.
+
+     The files live under demo/ rather than at the root because `demo/styles.css` is
+     mirrored verbatim from the product and resolves `fonts/…` relative to itself.
+     Moving them would break at the next mirror push; this page borrows them instead
+     of keeping a second copy of the same 84 kB. */
+  @font-face { font-family: "Geist"; font-style: normal; font-weight: 100 900; font-display: swap; src: url("demo/fonts/geist.woff2") format("woff2"); }
+  @font-face { font-family: "Geist"; font-style: italic; font-weight: 100 900; font-display: swap; src: url("demo/fonts/geist-italic.woff2") format("woff2"); }
+  @font-face { font-family: "Geist Mono"; font-style: normal; font-weight: 100 900; font-display: swap; src: url("demo/fonts/geist-mono.woff2") format("woff2"); }
+
   :root {
     /* map-paper light */
     --bg: #f0eee7;
@@ -22,8 +45,8 @@
     --forest: #567f66;      /* route / support */
     --forest-soft: #e0e8dd;
     --shadow: 0 1px 2px rgba(20,32,27,.05), 0 8px 30px -12px rgba(20,32,27,.14);
-    --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --font-sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark) {
@@ -199,7 +222,16 @@
   .node p { margin: 0; color: var(--muted); font-size: 14.5px; }
   .node.mid { border-color: color-mix(in srgb, var(--accent) 34%, transparent); }
   .arrow { align-self: center; color: var(--accent); font-family: var(--font-mono); font-size: 20px; }
-  @media (max-width: 640px) { .arrow { transform: rotate(90deg); align-self: center; } }
+  /* Stacked, the arrows have to take a row of their own. Left as flex items beside a
+     316px node in a 342px track they neither wrapped nor centred — they sat at the
+     right edge, clipped, pointing down at nothing.
+     The breakpoint is 767 and not 640 because that is where the *nodes* stop
+     wrapping: three 200px bases plus two arrows and four gaps need a 720px track,
+     which the page's padding puts at a 768px viewport. Between 641 and 767 the
+     rotation was already on, the nodes already stacked, and the arrows were still
+     laid out sideways — the same break, one band further up, and only the phone half
+     of it was visible in a phone-sized screenshot. */
+  @media (max-width: 767px) { .arrow { flex: 1 0 100%; text-align: center; transform: rotate(90deg); } }
 
   /* deploy steps */
   .steps { display: grid; gap: 2px; background: var(--line); border: 1px solid var(--line); border-radius: 13px; overflow: hidden; }
@@ -384,7 +416,7 @@ cadence/bring-your-own-markup
         <div class="step"><span class="n">1</span><div><h4>Use the template</h4><p>Fork <code>tor2dbear/etapp</code> — the whole engine and board come with it.</p></div></div>
         <div class="step"><span class="n">2</span><div><h4>List your repos</h4><p>Edit <code>sources.json</code> — repo, name, colour, adapter. A <code>GITHUB_TOKEN</code> covers private ones.</p></div></div>
         <div class="step"><span class="n">3</span><div><h4>Brand it</h4><p>Set title, description and source link in <code>board.config.json</code>.</p></div></div>
-        <div class="step"><span class="n">4</span><div><h4>Deploy</h4><p>Cloudflare → import the repo → <code>npx wrangler deploy</code>. No build step.</p></div></div>
+        <div class="step"><span class="n">4</span><div><h4>Deploy</h4><p>Cloudflare → import the repo → deploy command <code>npm run deploy</code>. No build step.</p></div></div>
         <div class="step"><span class="n">5</span><div><h4>Forget it</h4><p>An hourly action harvests your repos and redeploys. Nothing to run.</p></div></div>
       </div>
     </div>

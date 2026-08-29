@@ -1,5 +1,15 @@
 {
   "devDependencies": {
-    "playwright-core": "^1.62.1"
+    "playwright-core": "^1.62.1",
+    "wrangler": "^4.127.1"
+  },
+  "name": "etapp-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:demo": "node demo/data/build.mjs",
+    "check": "node scripts/check-bundle.mjs",
+    "predeploy": "node scripts/check-bundle.mjs",
+    "deploy": "wrangler deploy"
   }
 }

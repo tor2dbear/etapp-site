@@ -1,6 +1,21 @@
+# Kept out of the served static bundle (assets.directory is the repo root).
+# Only the landing page and the demo board ship: index.html, demo/.
+#
+# This list is an *exclusion* list, which fails in the one direction nobody notices:
+# a file nobody thought about is not left out, it is published. It did — node_modules/
+# (113 tracked files, playwright-core included) and package.json were both live on
+# etapp.tor2dbear.com, verified 200. `npm run check` now asserts this list instead of
+# trusting it.
 .git
 .gitignore
 .assetsignore
 wrangler.jsonc
 README.md
 demo/data/build.mjs
+scripts
+.DS_Store
+node_modules
+package.json
+package-lock.json
+.wrangler
+wrangler-out.txt
