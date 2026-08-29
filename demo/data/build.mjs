@@ -146,6 +146,9 @@ const payload = {
     repoUrl: "https://github.com/tor2dbear/etapp",
     ribbon: "← Etapp · **live demo** · data is fictional",
     ribbonHref: "/",
+    // Unlocks every write affordance and answers GitHub inside the page — see the
+    // `DEMO` note in app.js. A real instance never sets this.
+    demo: true,
     // Saved views are configuration, not truth — a named set of the same parameters the
     // URL carries. Without them the sidebar's Saved section is empty and a visitor never
     // learns the feature exists.

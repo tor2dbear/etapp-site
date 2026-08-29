@@ -6,6 +6,7 @@
     "repoUrl": "https://github.com/tor2dbear/etapp",
     "ribbon": "← Etapp · **live demo** · data is fictional",
     "ribbonHref": "/",
+    "demo": true,
     "views": [
       {
         "name": "High priority",

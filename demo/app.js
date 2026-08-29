@@ -3,6 +3,21 @@
   "use strict";
 
   var DATA = window.__ROADMAP__;
+  // ── demo mode ───────────────────────────────────────────────────────────────────
+  // A board that is fully operable and commits nothing.
+  //
+  // The public demo is logged out, so every write affordance is gated off and a visitor
+  // sees a read-only board — for a product whose whole claim is that both a human and an
+  // agent write back to git. Demo mode unlocks the interface and answers GitHub locally.
+  //
+  // *One seam, not fifty.* The write paths are untouched and still speak to
+  // api.github.com; the request is answered in the page instead of sent. That is what
+  // makes the demo honest: the optimistic update, the rollback on failure, the toasts
+  // and the sha bookkeeping are the same code the real board runs, exercised for real.
+  //
+  // Only `config.demo` turns it on — no URL parameter, no key combination. A switch that
+  // silently stops committing must not be reachable on a board that has a token.
+  var DEMO = !!(DATA && DATA.config && DATA.config.demo);
   // Up here rather than beside `ghToken`, where it used to sit and where it read more
   // naturally. `var` hoists the *declaration* and not the assignment, and the boot
   // render (`renderBoard()`, a top-level call) runs some thirty lines above the old
@@ -3450,15 +3465,20 @@
   // with the archive lifted and the term still standing, and the column would flash
   // back into hiding before the second half ran. The term edit below renders once, for
   // both halves. One eye, one click, one column back — which is the whole point of it.
+  // Lifting the archive, from wherever the board admits a card is missing. Two callers
+  // — the tray's eye on a whole column, and a column head's own mark on the cards it is
+  // hiding — and they have to write the same key, or the Display menu and the sidebar
+  // counts end up disagreeing with the board they describe.
+  function liftArchive() {
+    state.showDone = true;
+    saveDisplay("done", "1"); // the same key `setDisplay("showDone", …, "done")` writes
+    refreshDisplayDot();
+    refreshNav(); // the sidebar's counts read `state.showDone`
+  }
   function unhideColumn(g, key, archive) {
     var t = columnTerm(g, key);
     if (!t && !archive) return; // nothing to mend and no toggle to lift
-    if (archive) {
-      state.showDone = true;
-      saveDisplay("done", "1"); // the same key `setDisplay("showDone", …, "done")` writes
-      refreshDisplayDot();
-      refreshNav(); // the sidebar's counts read `state.showDone`
-    }
+    if (archive) liftArchive();
     // An unnameable column (a target month) is only ever here for the archive, so the
     // lift above *is* the whole repair; render it, since no term edit will.
     if (!t) { renderBoard(); return; }
@@ -3597,8 +3617,52 @@
     return wrap;
   }
 
+  // "N archived", in the head of the column that is short of them. Not a label: it
+  // presses the same toggle the tray's eye does, so the thing that says what is missing
+  // is also the thing that brings it back.
+  function archivedMark(n) {
+    var b = el("button", "col-archived");
+    b.type = "button";
+    b.title = "Show " + n + " archived " + (n === 1 ? "puck" : "pucks") + " in this column";
+    b.setAttribute("aria-label", b.title);
+    b.appendChild(el("span", "count", String(n) + " archived"));
+    b.appendChild(icon("eye"));
+    b.addEventListener("click", function (e) { e.stopPropagation(); liftArchive(); renderBoard(); });
+    return b;
+  }
+  // How many cards the archive is holding back from each column that *is* on the board.
+  //
+  // The tray answers for a whole column missing; under a non-status grouping the archive
+  // takes cards *inside* the columns instead, and there the tray cannot speak: a repo
+  // reaches it only when every one of its pucks is archived. So `?group=repo` with the
+  // toggle off showed PIA's 6 open pucks and dropped 39 landed ones with nothing on
+  // screen saying so — the one case the "a column → the tray, cards → the chip row" rule
+  // did not cover, because the chip row cannot see this switch either (`viewTerms()`
+  // holds it as `-is:done`, outside `state.query`).
+  //
+  // The exemption lives in the *callers*, not here: the data is the data, and only the
+  // board can say "the tray already covers this". `order` comes back too, because the
+  // list has to slot a fully-archived group into its own place rather than at the end.
+  function archivedPerColumn() {
+    if (state.showDone || !ARCHIVABLE[state.focus]) return null;
+    var count = {}, order = [];
+    withShowDone(true, function () {
+      var q = activeTerms();
+      var all = DATA.items.filter(function (it) { return runQuery(it, q); });
+      groupsOf(all).forEach(function (grp) { count[grp.key] = grp.items.length; order.push(grp.key); });
+    });
+    return { count: count, order: order };
+  }
   function renderColumns(groups) {
     var g = activeGroup();
+    // No guard for status grouping, and none is needed — which is worth writing down,
+    // because the obvious thing to write here is one. Under status grouping an archived
+    // card is *by definition* in the Done or Cancelled column, and the toggle has already
+    // taken those off the board; a column that still stands can never be holding one
+    // back, so `held` is zero for every one of them and no mark is drawn. The tray keeps
+    // its job without anyone arranging it. A guard was written first and removed after
+    // sabotage failed to break anything: it could not fire in any view.
+    var archived = archivedPerColumn();
     groups.forEach(function (grp) {
       if (!grp.items.length && !state.showEmpty) return;
       var col = el("div", "column" + (g.cls ? " " + g.cls(grp.key) : " col-plain"));
@@ -3607,6 +3671,8 @@
       head.appendChild(el("span", "swatch"));
       head.appendChild(el("h2", null, grp.label));
       head.appendChild(el("span", "count", String(grp.items.length)));
+      var held = archived ? (archived.count[grp.key] || 0) - grp.items.length : 0;
+      if (held > 0) head.appendChild(archivedMark(held));
       if (g.headExtra) { var hx = g.headExtra(grp.key); if (hx) head.appendChild(hx); }
       // Only where the column can actually be named by a term — a target month
       // cannot, and offering a dead menu item is worse than offering none.
@@ -3703,8 +3769,32 @@
   }
   function renderList(groups) {
     var g = activeGroup();
+    // No exemption for status grouping here, unlike the board. The list has no tray, so
+    // nothing else can speak for the archive — and `?layout=list` with the toggle off
+    // simply had no Done section, in the *default* grouping, with nothing saying so. The
+    // chip row cannot cover it either (`viewTerms()` holds the switch outside
+    // `state.query`), which is what left this layout silent in every grouping.
+    var archived = archivedPerColumn();
+    var shownKeys = {};
+    groups.forEach(function (grp) { if (grp.items.length) shownKeys[grp.key] = 1; });
+    // A group the archive emptied *entirely* never reaches `groups`, so it has to be put
+    // back as a heading with nothing under it — the list's answer to what the tray does
+    // on the board. Walked in the archive's own order so it lands in its own place
+    // rather than after everything else.
+    if (archived) {
+      var stubs = archived.order.filter(function (k) { return !shownKeys[k] && archived.count[k]; });
+      if (stubs.length) {
+        var byKey = {};
+        groups.forEach(function (grp) { byKey[grp.key] = grp; });
+        groups = archived.order.map(function (k) {
+          return byKey[k] || { key: k, label: g.labelOf(k), items: [], archivedOnly: true };
+        });
+      }
+    }
     groups.forEach(function (grp) {
-      if (!grp.items.length) return; // a flat list has no drop targets, so no empty headers
+      // A flat list has no drop targets, so no empty headers — except one the archive
+      // emptied, which is exactly the thing that has to be said out loud.
+      if (!grp.items.length && !grp.archivedOnly) return;
       var section = el("section", "list-group" + (g.cls ? " " + g.cls(grp.key) : " col-plain"));
       if (g.tint && g.tint(grp.key)) section.style.setProperty("--tint", g.tint(grp.key));
       var shut = state.collapsed.has(grp.key);
@@ -3715,6 +3805,21 @@
       // headings would have dropped out of the heading map. The rollup badge stays
       // outside the button — it is the etapp's number, not part of the control.
       var h = el("h2");
+      // A group the archive emptied has nothing to collapse and no visible count worth
+      // printing — "Done 0 · 3 archived" says zero twice. So it is a plain heading, not
+      // a control: swatch and label, and the mark carries both the number and the way
+      // back. The chevron would promise rows that do not exist until the toggle lifts.
+      if (grp.archivedOnly) {
+        var stub = el("span", "lh-toggle lh-stub");
+        stub.appendChild(el("span", "swatch"));
+        stub.appendChild(el("span", "lh-label", grp.label));
+        h.appendChild(stub);
+        head.appendChild(h);
+        head.appendChild(archivedMark(archived.count[grp.key]));
+        section.appendChild(head);
+        board.appendChild(section);
+        return;
+      }
       var toggle = el("button", "lh-toggle");
       toggle.type = "button";
       toggle.setAttribute("aria-expanded", shut ? "false" : "true");
@@ -3726,6 +3831,10 @@
       toggle.addEventListener("click", function () { toggleGroup(grp.key); });
       h.appendChild(toggle);
       head.appendChild(h);
+      // Outside the toggle, for the reason stated above it: a <button> inside a <button>
+      // is invalid, and this one has its own click.
+      var held = archived ? (archived.count[grp.key] || 0) - grp.items.length : 0;
+      if (held > 0) head.appendChild(archivedMark(held));
       if (g.headExtra) { var hx = g.headExtra(grp.key); if (hx) head.appendChild(hx); }
       section.appendChild(head);
       if (!shut) grp.items.forEach(function (it) { section.appendChild(listRow(it)); });
@@ -5909,9 +6018,14 @@
   // Optional ribbon banner (config-driven, e.g. the live-demo strip) — rendered
   // here so the demo's chrome isn't baked into index.html, which lets the mirror
   // ship index.html verbatim and keep the demo's structure in sync with the tool.
-  if (CFG.ribbon) {
+  // In demo mode the band is not optional. A visitor who creates a puck and sees it
+  // land has to be told, on screen and without hunting, that it went nowhere — a toast
+  // that says "✓ Created" is true and still misleading on its own.
+  var ribbonText = CFG.ribbon || (DEMO ? "**live demo**" : "");
+  if (DEMO) ribbonText += " · editable — changes stay in this browser, nothing is committed";
+  if (ribbonText) {
     var ribbon = el(CFG.ribbonHref ? "a" : "div", "demo-ribbon");
-    ribbon.innerHTML = renderMd(CFG.ribbon).replace(/^<p>|<\/p>\s*$/g, "");
+    ribbon.innerHTML = renderMd(ribbonText).replace(/^<p>|<\/p>\s*$/g, "");
     if (CFG.ribbonHref) { ribbon.href = CFG.ribbonHref; }
     document.body.insertBefore(ribbon, document.body.firstChild);
   }
@@ -5935,6 +6049,9 @@
     else sourceLink.style.display = "none"; // no repo configured → hide the dead link
   }
 
+  // Before anything can write: the seam has to be in place ahead of the first render,
+  // because the writable-repo probe fires from there.
+  if (DEMO) installDemoGitHub();
   buildModal();
   readUrl(); // a shared link decides the view before anything paints it
   buildRepoChips();
@@ -5975,8 +6092,85 @@
   // — the same edit the CLI makes, from the web. Edit controls appear only when a
   // token is set, so the public board is identical for everyone else.
   // TOKEN_KEY itself is declared at the top of the file, not here — see the note there.
-  function ghToken() { try { return localStorage.getItem(TOKEN_KEY) || ""; } catch (e) { return ""; } }
+  function ghToken() {
+    // The demo's sentinel unlocks every write affordance in one line rather than fifty.
+    // `ghToken()` is the gate on all of them — the `+` in a column, Save view, the
+    // editable rail rows, drag-to-status — so a board that answers it truthfully is a
+    // board that demonstrates the read half of a product whose claim is read *and*
+    // write. What stops the writes is the `fetch` seam in `installDemoGitHub`, not this.
+    if (DEMO) return "demo";
+    try { return localStorage.getItem(TOKEN_KEY) || ""; } catch (e) { return ""; }
+  }
   function setGhToken(v) { try { v ? localStorage.setItem(TOKEN_KEY, v) : localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
+  // Answers api.github.com from inside the page. Everything else — the gates, the
+  // optimistic updates, the rollbacks — is the production path, untouched.
+  //
+  // A map of path → content, not a fixed placeholder: a field edit reads the file,
+  // rewrites one line and commits against that read's sha, so the second edit of a puck
+  // has to read back what the first one wrote. Without that, editing twice would build
+  // the second change on the original text and the demo would quietly lie about what
+  // the product does.
+  function installDemoGitHub() {
+    var files = {}; // "owner/repo:path" → text
+    var sha = 0;
+    var real = window.fetch.bind(window);
+    var json = function (body, status) {
+      return Promise.resolve(new Response(JSON.stringify(body), {
+        status: status || 200, headers: { "Content-Type": "application/json" },
+      }));
+    };
+    // The file as it would be on disk, rebuilt from the item the board already holds.
+    // Only used on a first read; after that the map has the real thing.
+    function seed(repo, path) {
+      var it = null;
+      for (var i = 0; i < DATA.items.length; i++) {
+        if (DATA.items[i].repo === repo && DATA.items[i].sourcePath === path) { it = DATA.items[i]; break; }
+      }
+      if (!it) return "---\ntitle: Untitled\nstatus: inbox\nupdated: " + today() + "\n---\n\n";
+      // Quoted the same way `puckTemplate` quotes it — `formatValue` lives in the CLI,
+      // not here, and reaching for it threw the first time this ran.
+      var t = /[:#]/.test(it.title) ? JSON.stringify(it.title) : it.title;
+      var fm = ["---", "title: " + t, "status: " + it.status];
+      if (it.tags && it.tags.length) fm.push("tags: [" + it.tags.join(", ") + "]");
+      if (it.priority) fm.push("priority: " + it.priority);
+      if (it.agent) fm.push("agent: " + it.agent);
+      if (it.owner) fm.push("owner: " + it.owner);
+      if (it.target) fm.push("target: " + it.target);
+      if (it.parent) fm.push("parent: " + it.parent);
+      if (it.depends && it.depends.length) fm.push("depends: [" + it.depends.join(", ") + "]");
+      if (it.issue) fm.push("issue: " + it.issue);
+      fm.push("updated: " + (it.updated || today()));
+      if (it.created) fm.push("created: " + it.created);
+      fm.push("---", "");
+      return fm.join("\n") + "\n" + (it.body || "");
+    }
+    window.fetch = function (url, opts) {
+      var u = String(url && url.url ? url.url : url);
+      if (u.indexOf("https://api.github.com/") !== 0) return real(url, opts);
+      var method = (opts && opts.method) || "GET";
+      // Who you are. The account menu reads this to draw the identity row.
+      if (u.indexOf("https://api.github.com/user") === 0) {
+        return json({ login: "demo", avatar_url: "" });
+      }
+      var m = /\/repos\/([^/]+\/[^/?]+)(?:\/contents\/([^?]+))?/.exec(u);
+      var repo = m && m[1];
+      var path = m && m[2] && decodeURIComponent(m[2]);
+      if (!repo) return json({}, 404);
+      // The permissions probe: every repo is writable here, so no card is marked
+      // read-only and the rail stays editable.
+      if (!path) return json({ permissions: { push: true } });
+      var key = repo + ":" + path;
+      if (method === "PUT") {
+        var body = {};
+        try { body = JSON.parse((opts && opts.body) || "{}"); } catch (e) {}
+        if (body.content) files[key] = b64decode(body.content);
+        return json({ content: { sha: "demo-" + (++sha) } }, 201);
+      }
+      if (method === "DELETE") { delete files[key]; return json({ commit: { sha: "demo-" + (++sha) } }); }
+      if (!(key in files)) files[key] = seed(repo, path);
+      return json({ sha: "demo-" + sha, content: b64encode(files[key]), path: path });
+    };
+  }
   function b64encode(s) { return btoa(unescape(encodeURIComponent(s))); }
   function b64decode(b) { return decodeURIComponent(escape(atob(String(b).replace(/\s/g, "")))); }
   function today() { return new Date().toISOString().slice(0, 10); }
@@ -7175,6 +7369,11 @@
   // Toast
   var toastEl, toastTimer;
   function toast(msg, isErr) {
+    // "live in ~1 min" is a promise about the hourly harvest picking the commit up. The
+    // demo makes no commit, so that clause is the one sentence on screen that would be
+    // untrue — rewritten here rather than at the fifteen call sites that say it, for the
+    // same reason the network is intercepted in one place.
+    if (DEMO) msg = String(msg).replace(/ — live in ~1 min/g, " — in this browser only");
     if (!toastEl) { toastEl = el("div", "toast"); document.body.appendChild(toastEl); }
     toastEl.textContent = msg;
     toastEl.className = "toast show" + (isErr ? " err" : "");
@@ -7441,6 +7640,7 @@
       fetch("https://api.github.com/user", { headers: { Authorization: "Bearer " + ghToken(), Accept: "application/vnd.github+json" } })
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (u) {
+          if (DEMO) { name.textContent = "Demo — not signed in"; head.classList.add("demo-who"); return; }
           if (u && u.login) {
             name.textContent = "@" + u.login;
             var img = document.createElement("img");
@@ -7449,14 +7649,20 @@
           } else { name.textContent = "token invalid"; head.classList.add("bad"); }
         })
         .catch(function () { name.textContent = "signed in"; });
-      var change = el("button", "row user-mi", "Change token");
-      change.type = "button";
-      change.addEventListener("click", function () { menu.remove(); openTokenPanel(afterAuth); });
-      var out = el("button", "row user-mi danger", "Sign out");
-      out.type = "button";
-      out.addEventListener("click", function () { menu.remove(); setGhToken(""); afterAuth(); });
-      menu.appendChild(change);
-      menu.appendChild(out);
+      // There is no token to change or sign out of in the demo, and offering either
+      // would be a control that cannot do what it says. The note takes their place.
+      if (DEMO) {
+        menu.appendChild(el("div", "fp-empty", "Everything here is editable and nothing is committed — changes live in this browser tab until you reload."));
+      } else {
+        var change = el("button", "row user-mi", "Change token");
+        change.type = "button";
+        change.addEventListener("click", function () { menu.remove(); openTokenPanel(afterAuth); });
+        var out = el("button", "row user-mi danger", "Sign out");
+        out.type = "button";
+        out.addEventListener("click", function () { menu.remove(); setGhToken(""); afterAuth(); });
+        menu.appendChild(change);
+        menu.appendChild(out);
+      }
     } else {
       menu.appendChild(settingsItem());
       var signin = el("button", "row user-mi", "Sign in to edit");
