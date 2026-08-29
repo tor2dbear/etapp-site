@@ -10,6 +10,8 @@
     "build:demo": "node demo/data/build.mjs",
     "check": "node scripts/check-bundle.mjs",
     "predeploy": "node scripts/check-bundle.mjs",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "preversions:upload": "node scripts/check-bundle.mjs",
+    "versions:upload": "wrangler versions upload"
   }
 }
