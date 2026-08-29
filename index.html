@@ -224,8 +224,14 @@
   .arrow { align-self: center; color: var(--accent); font-family: var(--font-mono); font-size: 20px; }
   /* Stacked, the arrows have to take a row of their own. Left as flex items beside a
      316px node in a 342px track they neither wrapped nor centred — they sat at the
-     right edge and were clipped by 10px, pointing down at nothing. */
-  @media (max-width: 640px) { .arrow { flex: 1 0 100%; text-align: center; transform: rotate(90deg); } }
+     right edge, clipped, pointing down at nothing.
+     The breakpoint is 767 and not 640 because that is where the *nodes* stop
+     wrapping: three 200px bases plus two arrows and four gaps need a 720px track,
+     which the page's padding puts at a 768px viewport. Between 641 and 767 the
+     rotation was already on, the nodes already stacked, and the arrows were still
+     laid out sideways — the same break, one band further up, and only the phone half
+     of it was visible in a phone-sized screenshot. */
+  @media (max-width: 767px) { .arrow { flex: 1 0 100%; text-align: center; transform: rotate(90deg); } }
 
   /* deploy steps */
   .steps { display: grid; gap: 2px; background: var(--line); border: 1px solid var(--line); border-radius: 13px; overflow: hidden; }
