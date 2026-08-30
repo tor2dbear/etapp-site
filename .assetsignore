@@ -13,6 +13,9 @@ wrangler.jsonc
 README.md
 demo/data/build.mjs
 scripts
+# The repo's own roadmap — pucks are source, harvested by tor2dbear/roadmap.
+# They are not part of the site, and the guard caught them the moment they existed.
+roadmap
 .DS_Store
 node_modules
 package.json
