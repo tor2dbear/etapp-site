@@ -1,0 +1,29 @@
+{
+  "defaultBranch": "main",
+  "sources": [
+    {
+      "repo": "acme/aurora",
+      "name": "Aurora",
+      "color": "#8a7bab",
+      "blurb": "Design system",
+      "adapter": "pucks",
+      "path": "roadmap"
+    },
+    {
+      "repo": "acme/relay",
+      "name": "Relay",
+      "color": "#5f80a3",
+      "blurb": "Realtime chat",
+      "adapter": "pucks",
+      "path": "roadmap"
+    },
+    {
+      "repo": "acme/ledger",
+      "name": "Ledger",
+      "color": "#7d9163",
+      "blurb": "Personal finance",
+      "adapter": "pucks",
+      "path": "roadmap"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "title": "Etapp — demo",
+  "description": "A live Etapp board running on fictional data.",
+  "repoUrl": "https://github.com/tor2dbear/etapp",
+  "ribbon": "← Etapp · **live demo** · data is fictional",
+  "ribbonHref": "/",
+  "demo": true,
+  "views": [
+    {
+      "name": "High priority",
+      "q": "priority:high,urgent"
+    },
+    {
+      "name": "By discipline",
+      "group": "agent",
+      "q": "has:agent"
+    },
+    {
+      "name": "Needs attention",
+      "view": "attention"
+    }
+  ]
+}
