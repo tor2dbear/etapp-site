@@ -1,0 +1,18 @@
+Sond för bundle-vakten — inte en del av sajten.
+
+Den här filen finns för att den är spårad och varken serverad eller
+utesluten, vilket är exakt vad scripts/check-bundle.mjs ska avvisa:
+
+  ✗ tracked but neither served nor excluded: bundle-guard-probe.txt
+
+Frågan sonden avgör: går Cloudflares Version-kommando genom
+`npm run versions:upload` (och därmed genom `preversions:upload`,
+som kör vakten), eller kör det `wrangler versions upload` rakt av?
+
+  Röd build  → vakten sitter i vägen. Filen publicerades aldrig.
+  Grön build → den gör inte det, och du läser den här filen på en
+               preview-URL som bevis på det.
+
+Grenen är slask och tas bort efteråt. Produktionen (etapp.tor2dbear.com)
+berörs inte — en icke-produktionsgren laddar upp en version, den deployar
+ingenting.
