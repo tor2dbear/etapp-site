@@ -51,8 +51,10 @@ bygger — den granskar inte.
 ## Delivered
 
 Levererat mot **målet ovan** — repot har ett eget nät — men inte mot allt som står
-under *"Vad ett nät här skulle täcka"*. Två av de tre punkterna är kvar, och de har
-en egen puck; se **Vad som inte gjordes** sist.
+under *"Vad ett nät här skulle täcka"*. Två av de tre punkterna är kvar: **en har en
+egen puck, den andra har medvetet ingen.** Skälet till skillnaden står under **Vad som
+inte gjordes** sist, och är värt att läsa innan man antar att allt kvarvarande är
+spårat någonstans.
 
 **15 kontroller på `node:test` och en `Check`-workflow** som kör dem plus vakten vid
 varje PR och push till `main` ([#5](https://github.com/tor2dbear/etapp-site/pull/5)).
