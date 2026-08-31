@@ -1,0 +1,54 @@
+# The gate this repo did not have.
+#
+# What is being protected: the served bundle *is* the repo root, and `.assetsignore` is
+# an exclusion list, which fails in the one direction nobody notices — a file nobody
+# thought about is not left out, it is published. It already happened once: 113 tracked
+# files from node_modules/, playwright-core included, live at 200 on etapp.tor2dbear.com.
+#
+# Until now the only thing running that check was a text field in the Cloudflare
+# dashboard (the Deploy and Version commands, both `npm run …`, which reach the guard
+# through npm's pre-scripts). That works — it was verified with a deliberate leak on
+# 2026-08-31, which the build refused — but no pull request can see a dashboard field.
+# Someone edits it in a browser, nothing appears in any diff, and the first symptom is
+# something published that should not be.
+#
+# So the check lives here too, where removing it is a line in a diff someone has to
+# approve.
+name: Check
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # No `npm ci`: nothing here needs installing. The guard is Node builtins only,
+      # on purpose, and the suite runs on node:test — which is also why this job has no
+      # lockfile step and finishes in seconds.
+      - name: Bundle guard
+        run: node scripts/check-bundle.mjs
+
+      - name: Tests
+        run: node --test "tests/**/*.test.mjs"
+
+      # The board's three files are mirrored here from tor2dbear/roadmap and are not
+      # edited in this repo, but a broken mirror run would land broken files, and this
+      # is the only place that would notice before a visitor does.
+      - name: Syntax
+        run: |
+          for f in demo/app.js demo/data/build.mjs scripts/check-bundle.mjs; do
+            node --check "$f"
+          done

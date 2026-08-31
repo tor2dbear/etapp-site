@@ -16,6 +16,12 @@ scripts
 # The repo's own roadmap — pucks are source, harvested by tor2dbear/roadmap.
 # They are not part of the site, and the guard caught them the moment they existed.
 roadmap
+# CI. The gate that runs the guard on every PR, so removing the guard is a diff
+# someone has to approve rather than an edit in a dashboard nobody can review.
+.github
+# The suite. Node's own runner, no install — see tests/bundle.test.mjs for why the
+# guard needed one of its own.
+tests
 # The demo's fictional pucks and their config: input to demo/data/build.mjs, never
 # served. Only its *output* (demo/data/roadmap.{json,js}) ships. Anchored on purpose —
 # the bare `roadmap` line above already swallowed fixture/repos/**/roadmap/*.md by
