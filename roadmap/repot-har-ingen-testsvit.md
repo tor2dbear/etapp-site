@@ -1,8 +1,8 @@
 ---
 title: Repot har ingen testsvit, och vakten hålls i takt för hand
-status: later
+status: done
 tags: [ci, tooling]
-updated: 2026-08-29
+updated: 2026-08-31
 ---
 
 ## Goal
@@ -48,12 +48,78 @@ Repot har `playwright-core` som devDependency men ingen testkatalog, ingen runne
 ingen CI-workflow alls. Cloudflares Git-build är den enda automatiken, och den
 bygger — den granskar inte.
 
-## Open questions
-- Duplicera vakten (som i dag, med en kontroll som fångar drift) eller **hämta** den
-  ur `tor2dbear/roadmap` vid bygget? Det senare tar bort kopian men lägger ett
-  beroende mellan repon som inte finns i dag.
-- Egen svit här, eller låta roadmap-repots svit köra mot den här sidan? Sajten är
-  mestadels speglad kod — det unika är fixturen, landningssidan och `.assetsignore`.
-- Räcker en GitHub Actions-workflow som kör vakten på varje PR, eller vill vi ha
-  webbläsartester också? Den första är en timmes arbete och stoppar den kända
-  återfallsrisken.
+## Delivered
+
+Levererat mot **målet ovan** — repot har ett eget nät — men inte mot allt som står
+under *"Vad ett nät här skulle täcka"*. Två av de tre punkterna är kvar, och de har
+en egen puck; se **Vad som inte gjordes** sist.
+
+**15 kontroller på `node:test` och en `Check`-workflow** som kör dem plus vakten vid
+varje PR och push till `main` ([#5](https://github.com/tor2dbear/etapp-site/pull/5)).
+Inga beroenden — vakten är Node-builtins med flit, och sviten följer efter. Jobbet har
+ingen `npm ci` och går på **9 sekunder**. Det körde på sin egen PR, alltså granskade
+den koden som införde den.
+
+Det stänger det pucken egentligen handlade om: vakten var påslagen genom **två
+textfält i Cloudflares dashboard**. De var rätt ifyllda — verifierat 2026-08-31 med en
+avsiktlig läcka som bygget vägrade — men ingen pull request kan se ett dashboard-fält.
+Nu ligger kontrollen i repot, där den bara går att ta bort i en diff någon godkänner.
+
+Testerna ligger där buggarna satt: mönstermatcharens fyra former, plus att slash-fria
+mönster matchar på alla djup — inte en bugg, men något annat vilar på det numera.
+Demodatan får konsistenskontroller (`counts` mot `items`, `sources.count` mot items per
+repo, relationer som id:n som finns, `roadmap.js` mot `roadmap.json`) men **ingen
+fältlista**: den datan genereras av harvestern sedan
+`demofixturen-driver-isar-fran-produkten`, så en handhållen lista över vad den
+producerar vore samma misstag på en ny plats.
+
+### Sviten hittade en bugg i vakten, vilket var hela poängen
+
+`auditBundle()` bygger varje sökväg med strängkonkatenering — `walk()` också — så roten
+**måste** sluta med snedstreck. Enda anroparen skickar
+`fileURLToPath(new URL("..", import.meta.url))`, som alltid gör det. Anropad med en
+vanlig katalogsökväg svarade den:
+
+> no .assetsignore — every file in the repo would be published
+
+Vaktens allra högsta larm, om ett repo vars `.assetsignore` låg där hela tiden. En vakt
+som skriker varg om fel sak är sämre än en tyst: nästa gång den larmar tror man den
+mindre. Fixad i båda kopiorna
+([roadmap#34](https://github.com/tor2dbear/roadmap/pull/34)).
+
+**Och varför roadmaps 387 kontroller aldrig kunde se den:** `ROOT` i
+`tests/shipping.test.mjs` byggs med *samma uttryck som CLI:t*. Testet ärvde exakt det
+antagande det skulle pröva, så hur många kontroller som än lades till gick var och en
+genom samma dörr som koden. Samma lärdom som räknarsvepet och teckensvepet gav — fråga
+källan, inte en kopia av den — men den här gången satt felet i **testet**.
+
+Buggen hittades följaktligen inte där. Den hittades här, av det första testet någonsin
+skrivet mot funktionen, av någon som skickade sökvägen på det uppenbara sättet.
+
+### Vad som inte gjordes
+
+Två av de tre punkterna under *"Vad ett nät här skulle täcka"*:
+
+- **Att kopiorna inte glider isär.** Egen puck i verktygsrepot —
+  `vakten-underhalls-i-tva-kopior` (`tor2dbear/roadmap`), eftersom fixen är speglingen
+  och speglingen bor där.
+- **Webbläsartester av demot.** Demots kod speglas från `tor2dbear/roadmap` och testas
+  i dess svit; det unika här är fixturen och landningssidan. Ingen puck ännu — skriv en
+  när något faktiskt går sönder, hellre än att gissa vad som skulle kunna.
+
+## Answered
+
+- **Duplicera eller hämta vakten?** *Ingetdera.* Frågan var fel ställd: en diff visade
+  att filerna är 159 rader vardera och skiljer sig på ~20 — och **varenda** skiljande
+  rad är en kommentar eller `SERVED`-kartan. Regelverket är identiskt tecken för tecken.
+  Filen är alltså redan två saker, och bara den ena ska delas. Att *hämta* hela filen
+  vid bygget vore dessutom fel form för en vakt: ett nätverksberoende som kan fallera
+  öppet. Flyttat till `vakten-underhalls-i-tva-kopior` i `tor2dbear/roadmap`.
+- **Egen svit här, eller roadmaps mot den här sidan?** Egen — men mindre än frågan
+  antog. Det unika här visade sig vara `.assetsignore` och den committade demodatan,
+  båda snabba och webbläsarlösa. Efter delningen ovan äger repot bara tio rader
+  konfiguration, och roadmaps svit är rätt plats för regelverket den delar.
+- **Räcker en workflow, eller vill vi ha webbläsartester?** Workflowen räckte för det
+  pucken var till för. Den stoppar den kända återfallsrisken, kör på nio sekunder, och
+  fann en riktig bugg första gången den kördes. Webbläsartester är inte avfärdade, bara
+  inte betalda för av något som gått sönder — se *Vad som inte gjordes*.
