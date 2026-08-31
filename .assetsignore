@@ -16,6 +16,11 @@ scripts
 # The repo's own roadmap — pucks are source, harvested by tor2dbear/roadmap.
 # They are not part of the site, and the guard caught them the moment they existed.
 roadmap
+# The demo's fictional pucks and their config: input to demo/data/build.mjs, never
+# served. Only its *output* (demo/data/roadmap.{json,js}) ships. Anchored on purpose —
+# the bare `roadmap` line above already swallowed fixture/repos/**/roadmap/*.md by
+# accident, which is the right outcome reached by a pattern that means something else.
+demo/data/fixture
 .DS_Store
 node_modules
 package.json
