@@ -8,6 +8,7 @@
   "type": "module",
   "scripts": {
     "build:demo": "node demo/data/build.mjs",
+    "test": "node --test \"tests/**/*.test.mjs\"",
     "check": "node scripts/check-bundle.mjs",
     "predeploy": "node scripts/check-bundle.mjs",
     "deploy": "wrangler deploy",
