@@ -410,14 +410,14 @@ cadence/bring-your-own-markup
       <div class="leg-head rise">
         <span class="eyebrow"><span class="puck"></span> Etapp <span class="legnum">05</span> — deploy your own</span>
         <h2>Point it at your repos. Ship in minutes.</h2>
-        <p>Config-driven — no code changes. Private repos work too.</p>
+        <p>Config-driven — no code changes, no backend, no build step.</p>
       </div>
       <div class="steps rise">
         <div class="step"><span class="n">1</span><div><h4>Use the template</h4><p>Fork <code>tor2dbear/etapp</code> — the whole engine and board come with it.</p></div></div>
-        <div class="step"><span class="n">2</span><div><h4>List your repos</h4><p>Edit <code>sources.json</code> — repo, name, colour, adapter. A <code>GITHUB_TOKEN</code> covers private ones.</p></div></div>
+        <div class="step"><span class="n">2</span><div><h4>List your repos</h4><p>Edit <code>sources.json</code> — repo, name, colour, adapter. Each project keeps its own <code>roadmap/</code>.</p></div></div>
         <div class="step"><span class="n">3</span><div><h4>Brand it</h4><p>Set title, description and source link in <code>board.config.json</code>.</p></div></div>
-        <div class="step"><span class="n">4</span><div><h4>Deploy</h4><p>Cloudflare → import the repo → deploy command <code>npm run deploy</code>. No build step.</p></div></div>
-        <div class="step"><span class="n">5</span><div><h4>Forget it</h4><p>An hourly action harvests your repos and redeploys. Nothing to run.</p></div></div>
+        <div class="step"><span class="n">4</span><div><h4>Publish it</h4><p>Settings → Pages → Source: <em>GitHub Actions</em>. Nothing but GitHub needed. The board is a plain static bundle, so any static host serves it just as well.</p></div></div>
+        <div class="step"><span class="n">5</span><div><h4>Stays fresh</h4><p>The included action harvests and republishes — hourly, on every push, and whenever you ask, from the Actions tab or the board's own <b>sync now</b>. Change the schedule in <code>pages.yml</code>.</p></div></div>
       </div>
     </div>
   </section>
