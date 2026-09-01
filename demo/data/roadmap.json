@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-31T18:17:32.671Z",
+  "generatedAt": "2026-09-01T04:17:34.722Z",
   "config": {
     "title": "Etapp — demo",
     "description": "A live Etapp board running on fictional data.",
@@ -92,9 +92,9 @@
       "tags": [
         "ui"
       ],
-      "updated": "2026-08-30",
-      "created": "2026-07-23",
-      "target": "2026-11-03",
+      "updated": "2026-08-31",
+      "created": "2026-07-24",
+      "target": "2026-11-04",
       "parent": null,
       "issue": null,
       "order": 0,
@@ -135,8 +135,8 @@
         "ui",
         "tokens"
       ],
-      "updated": "2026-08-24",
-      "created": "2026-07-25",
+      "updated": "2026-08-25",
+      "created": "2026-07-26",
       "target": null,
       "parent": "design-system-v2",
       "issue": null,
@@ -170,8 +170,8 @@
       "tags": [
         "ui"
       ],
-      "updated": "2026-08-29",
-      "created": "2026-08-02",
+      "updated": "2026-08-30",
+      "created": "2026-08-03",
       "target": null,
       "parent": "design-system-v2",
       "issue": null,
@@ -207,8 +207,8 @@
       "tags": [
         "motion"
       ],
-      "updated": "2026-08-27",
-      "created": "2026-08-05",
+      "updated": "2026-08-28",
+      "created": "2026-08-06",
       "target": null,
       "parent": "design-system-v2",
       "issue": null,
@@ -242,8 +242,8 @@
       "tags": [
         "layout"
       ],
-      "updated": "2026-07-21",
-      "created": "2026-07-01",
+      "updated": "2026-07-22",
+      "created": "2026-07-02",
       "target": null,
       "parent": null,
       "issue": 88,
@@ -281,8 +281,8 @@
       "tags": [
         "tooling"
       ],
-      "updated": "2026-08-28",
-      "created": "2026-08-28",
+      "updated": "2026-08-29",
+      "created": "2026-08-29",
       "target": null,
       "parent": null,
       "issue": null,
@@ -316,9 +316,9 @@
       "tags": [
         "search"
       ],
-      "updated": "2026-08-29",
-      "created": "2026-08-04",
-      "target": "2026-12-03",
+      "updated": "2026-08-30",
+      "created": "2026-08-05",
+      "target": "2026-12-04",
       "parent": null,
       "issue": null,
       "order": 60,
@@ -357,8 +357,8 @@
       "tags": [
         "backend"
       ],
-      "updated": "2026-08-30",
-      "created": "2026-08-06",
+      "updated": "2026-08-31",
+      "created": "2026-08-07",
       "target": null,
       "parent": "search",
       "issue": null,
@@ -394,8 +394,8 @@
       "tags": [
         "search"
       ],
-      "updated": "2026-08-28",
-      "created": "2026-08-08",
+      "updated": "2026-08-29",
+      "created": "2026-08-09",
       "target": null,
       "parent": "search",
       "issue": null,
@@ -433,8 +433,8 @@
       "tags": [
         "realtime"
       ],
-      "updated": "2026-08-31",
-      "created": "2026-08-04",
+      "updated": "2026-09-01",
+      "created": "2026-08-05",
       "target": null,
       "parent": null,
       "issue": 214,
@@ -472,8 +472,8 @@
       "tags": [
         "realtime"
       ],
-      "updated": "2026-08-01",
-      "created": "2026-07-13",
+      "updated": "2026-08-02",
+      "created": "2026-07-14",
       "target": null,
       "parent": null,
       "issue": null,
@@ -507,8 +507,8 @@
       "tags": [
         "audio"
       ],
-      "updated": "2026-08-07",
-      "created": "2026-08-07",
+      "updated": "2026-08-08",
+      "created": "2026-08-08",
       "target": null,
       "parent": null,
       "issue": null,
@@ -542,8 +542,8 @@
       "tags": [
         "security"
       ],
-      "updated": "2026-08-09",
-      "created": "2026-07-05",
+      "updated": "2026-08-10",
+      "created": "2026-07-06",
       "target": null,
       "parent": null,
       "issue": null,
@@ -577,8 +577,8 @@
       "tags": [
         "export"
       ],
-      "updated": "2026-07-04",
-      "created": "2026-06-23",
+      "updated": "2026-07-05",
+      "created": "2026-06-24",
       "target": null,
       "parent": null,
       "issue": null,
@@ -616,9 +616,9 @@
       "tags": [
         "core"
       ],
-      "updated": "2026-08-25",
-      "created": "2026-07-28",
-      "target": "2026-08-18",
+      "updated": "2026-08-26",
+      "created": "2026-07-29",
+      "target": "2026-08-19",
       "parent": null,
       "issue": null,
       "order": 140,
@@ -655,8 +655,8 @@
       "tags": [
         "core"
       ],
-      "updated": "2026-08-26",
-      "created": "2026-08-14",
+      "updated": "2026-08-27",
+      "created": "2026-08-15",
       "target": null,
       "parent": null,
       "issue": null,
@@ -700,8 +700,8 @@
       "tags": [
         "core"
       ],
-      "updated": "2026-07-18",
-      "created": "2026-06-13",
+      "updated": "2026-07-19",
+      "created": "2026-06-14",
       "target": null,
       "parent": null,
       "issue": null,
@@ -735,8 +735,8 @@
       "tags": [
         "planning"
       ],
-      "updated": "2026-08-23",
-      "created": "2026-08-23",
+      "updated": "2026-08-24",
+      "created": "2026-08-24",
       "target": null,
       "parent": null,
       "issue": null,
